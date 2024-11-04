@@ -8,10 +8,9 @@ import { useSvh } from './hooks/useSvh'
 
 
 function App() {
+  useSvh()
   const questions = useQuestionsStore(state => state.questions)
   console.log({questions})
-  useSvh()
-
   return (
     <main>
       <Container 
