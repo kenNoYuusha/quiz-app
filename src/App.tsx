@@ -1,16 +1,15 @@
-import './App.css'
-import { JavaScriptLogo } from './JavaScriptLogo'
-import { Container, Stack, Typography } from '@mui/material'
-import { Start } from './Start'
+import { JavaScriptLogo } from './components/JavaScriptLogo'
+import { Start } from './components/Start'
+import { Game } from './components/Game'
 import { useQuestionsStore } from './store/questions'
-import { Game } from './Game'
-import { useSvh } from './hooks/useSvh'
 
+import { Container, Stack, Typography } from '@mui/material'
+import { useSvh } from './hooks/useSvh'
 
 function App() {
   useSvh()
   const questions = useQuestionsStore(state => state.questions)
-  console.log({questions})
+  
   return (
     <main>
       <Container 
@@ -20,9 +19,14 @@ function App() {
           minHeight: 'calc(var(--vh, 1vh) * 100)',
           display: 'flex',
           flexDirection: 'column',
-          justifyContent: 'center',
+          justifyContent: questions.length > 0 ? 'start' : 'center',
           alignItems: 'center',
           gap: 2,
+          paddingTop : {
+            xs: '16px',
+            sm: '20px',
+            md: '24px',
+          }
         }}
       >
         <Stack direction='row' gap={2} sx={{

@@ -6,4 +6,5 @@ export interface State {
   pickAnswer: (id: number, index: number) => void
   goNextQuestion: () => void
   goPreviousQuestion: () => void
+  reset: () => void
 }

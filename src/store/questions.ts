@@ -1,9 +1,10 @@
 import { create } from 'zustand'
-import { type Question } from '../types/types'
+import { persist } from 'zustand/middleware'
 import { type State } from '../types/typesStateQuestions'
-import datajson from '../data.json'
+import datajson from '../data/modified_data.json'
+import confetti from 'canvas-confetti'
 
-export const useQuestionsStore = create<State>((set, get) => ({
+export const useQuestionsStore = create<State>()(persist((set, get) => ({
   questions: [],
 
   currentQuestion: 0,
@@ -16,21 +17,49 @@ export const useQuestionsStore = create<State>((set, get) => ({
   },
 
   pickAnswer: (id: number, index: number) => {
-    console.log('ejecutando pickAnswer')
+    
     const { questions } = get()
-    const newQuestions:Question[] = JSON.parse(JSON.stringify(questions))
-    const indexQuestion = newQuestions.findIndex(q => q.id === id)
-    const infoQuestion = newQuestions[indexQuestion]
-    infoQuestion['userSelectedAnswer'] = index
-    infoQuestion['isCorrectUserAnswer'] = infoQuestion.correctAnswer === index
-    newQuestions[indexQuestion] = infoQuestion
+
+    const newQuestions = questions.map(question => {
+      if (question.id === id) {
+
+        const isCorrectUserAnswer = question.correctAnswer === index
+        if(isCorrectUserAnswer) confetti()
+
+        const newAnswers = question.answers.map((answer, indexAnswer) => {
+          if(indexAnswer === question.correctAnswer) {
+            return {
+              ...answer,
+              color: 'green'
+            }
+          } else if (indexAnswer === index && indexAnswer !== question.correctAnswer) {
+            return {
+              ...answer,
+              color: 'red'
+            }
+          } else {
+            return answer
+          }
+
+        })
+        
+        return {
+          ...question,
+          userSelectedAnswer: index,
+          isCorrectUserAnswer,
+          answers: newAnswers
+        }
+      }
+      return question
+    })
+
     set({questions: newQuestions})
   },
 
   goNextQuestion: () => {
     const { currentQuestion, questions} = get()
     const nextQuestion = currentQuestion + 1
-    console.log('ejecutando nexquestion')
+   
     if(nextQuestion < questions.length) {
       set({ currentQuestion: nextQuestion})
     }
@@ -39,9 +68,15 @@ export const useQuestionsStore = create<State>((set, get) => ({
   goPreviousQuestion: () => {
     const { currentQuestion } = get()
     const previousQuestion = currentQuestion - 1
-    console.log('ejecutando previous question')
+   
     if (previousQuestion >= 0) {
       set({ currentQuestion: previousQuestion})
     }
   },
+
+  reset: () => {
+    set({questions: [], currentQuestion: 0})
+  }
+}), {
+  name: 'questions'
 }))
